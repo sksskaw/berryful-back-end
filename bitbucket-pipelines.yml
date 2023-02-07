@@ -1,0 +1,38 @@
+image: gradle:7.2
+
+pipelines:
+  branches:
+    develop:
+      - step:
+          name: Build & Deploy
+          caches:
+            - gradle
+          script:
+            - gradle build -x test
+            - ls -al
+            - pipe: atlassian/aws-elasticbeanstalk-deploy:1.0.2
+              variables:
+                AWS_ACCESS_KEY_ID: '$AWS_ACCESS_KEY_ID'
+                AWS_SECRET_ACCESS_KEY: '$AWS_ACCESS_KEY_SECRET'
+                AWS_DEFAULT_REGION: 'ap-northeast-2'
+                S3_BUCKET: 'berryful-elasticbeanstalk'
+                APPLICATION_NAME: 'berryful-dev'
+                ENVIRONMENT_NAME: 'berryful-dev'
+                ZIP_FILE: './build/libs/api-0.0.1-SNAPSHOT.war'
+    master:
+      - step:
+          name: Build & Deploy
+          caches:
+            - gradle
+          script:
+            - gradle build -x test
+            - ls -al
+            - pipe: atlassian/aws-elasticbeanstalk-deploy:1.0.2
+              variables:
+                AWS_ACCESS_KEY_ID: '$AWS_ACCESS_KEY_ID'
+                AWS_SECRET_ACCESS_KEY: '$AWS_ACCESS_KEY_SECRET'
+                AWS_DEFAULT_REGION: 'ap-northeast-2'
+                S3_BUCKET: 'berryful-elasticbeanstalk'
+                APPLICATION_NAME: 'berryful-prod'
+                ENVIRONMENT_NAME: 'berryful-prod'
+                ZIP_FILE: './build/libs/api-0.0.1-SNAPSHOT.war'
